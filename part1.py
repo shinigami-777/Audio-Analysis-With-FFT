@@ -43,7 +43,6 @@ def prepare_audio(filename, duration, start_time):
     time_array = np.linspace(0, duration, num=len(audio_data))
     return time_array, sample_rate, audio_data
 
-import numpy as np
 
 def manual_ctft(signal, time_array, frequencies):
     """
@@ -82,7 +81,7 @@ time_array, sample_rate, audio_data = prepare_audio("skyfall_clip.wav", 2, 13)
 frequencies = np.linspace(-1000, 1000, 500)
 fs =  manual_ctft(audio_data, time_array, frequencies)
 print(fs)  # Complex array printed
- # Plot it
+# Plot it
 plt.figure(figsize=(10, 6))
 plt.plot(frequencies, np.abs(fs))
 plt.xlabel("Frequency (Hz)")
