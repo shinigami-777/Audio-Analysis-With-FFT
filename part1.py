@@ -92,6 +92,8 @@ def analyze_time_reversal(signal, time_array, sample_rate):
     # 1. Reverse the signal directly
     print("started")
     reversed_signal = signal[::-1]
+    wavfile.write("reversed-audio.wav", sample_rate, (reversed_signal * 32767).astype(np.int16))
+    # Saved . Now play this
 
     print("reversed signal")
     # 2. Calculate the spectrum of the reversed signal
