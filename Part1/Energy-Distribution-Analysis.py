@@ -9,9 +9,13 @@ def analyze_energy_distribution(signal, time_array, sample_rate, carrier_freq):
     # Step 2: Perform modulation
     modulated_signal = signal * carrier_wave
 
+    # Saving the audio. Very high pitched :)
+    wavfile.write("modulated.wav", sample_rate, (modulated_signal * 32767).astype(np.int16))
+    print(f"Segment saved to modulated.wav")
+    
     # Step 3: Analyze spectrum of modulated signal
     frequencies = np.linspace(-5000, 5000, 1000)
-    spectrum =  manual_ctft(signal, time_array, frequencies)
+    spectrum =  manual_ctft(modulated_signal, time_array, frequencies)
 
     # Step 4: Analyze results
     plot_modulation_results(time_array, signal, modulated_signal, frequencies, spectrum, carrier_freq, (0.001, 0.0015))
@@ -63,43 +67,36 @@ def plot_modulation_results(time_array, signal, modulated_signal, frequencies, s
 
 def prepare_audio(filename, duration, start_time):
     # 1. Load audio file
-    sample_rate, audio_data = wavfile.read(filename)
-    # 2. Check if stereo -> convert to mono if needed
-    if len(audio_data.shape) == 2:  # Check if the audio is stereo
-        print("Converting stereo to mono...")
-        audio_data = np.mean(audio_data, axis=1, dtype=audio_data.dtype)
+    sample_rate, signal = wavfile.read(filename)
     
-     # Normalize the audio data to the range [-1, 1] based on the data type
-    if audio_data.dtype == np.int16:
-        audio_data = audio_data / 32768.0  # 16-bit signed integer
-    elif audio_data.dtype == np.int32:
-        audio_data = audio_data / 2147483648.0  # 32-bit signed integer
-    elif audio_data.dtype == np.uint8:
-        audio_data = (audio_data - 128) / 128.0  # 8-bit unsigned integer
+    # 2. Check if stereo -> convert to mono if needed
+    if len(signal.shape) == 2:  # Stereo audio
+        print("Signal is converted to mono")
+        signal = signal.mean(axis=1)  # Convert to mono by averaging channels
     else:
-        print(f"Unsupported audio data type: {audio_data.dtype}")
+        print("Signal was mono already")
     
     # 3. Extract segment of specified duration
-    end_time = start_time+duration
-    start_sample = int(start_time*sample_rate)
-    end_sample = int(end_time*sample_rate)
-    if start_sample < 0 or end_sample > len(audio_data):
-        raise ValueError("Specified segment is out of bounds.")
-    segment = audio_data[start_sample:end_sample]
-
-    # i am just saving the shortened audio file. Play this.
-    # Since i am using a virtual env and playback is not configured in it ....
+    start_sample = int(start_time * sample_rate)
+    end_sample = int((start_time + duration) * sample_rate)
+    segment = signal[start_sample:end_sample]
+    
+    # 4. Normalize signal to range [-1, 1]
+    signal_max = np.max(np.abs(segment))
+    if signal_max != 0:  # Avoid division by zero
+        processed_signal = segment / signal_max
+    else:
+        processed_signal = segment
+    print("Signal is Normalized")
+    
+    # 5. Create time array
+    time_array = np.linspace(0, len(processed_signal) / sample_rate, len(processed_signal), endpoint=False)
+    
     output_path = "segment.wav"
-    wavfile.write(output_path, sample_rate, (segment * 32767).astype(np.int16))  # Convert back to int16
+    wavfile.write(output_path, sample_rate, (processed_signal * 32767).astype(np.int16))
     print(f"Segment saved to {output_path}")
 
-    # 5. Create time array
-    # Extracting time array
-    sample_rate, audio_data = wavfile.read("segment.wav")
-    duration = len(audio_data) / sample_rate
-    #print(duration)
-    time_array = np.linspace(0, duration, num=len(audio_data))
-    return time_array, sample_rate, audio_data
+    return sample_rate, processed_signal, time_array
 
 def manual_ctft(signal, time_array, frequencies):
     # Step 1: Set up integration parameters
@@ -123,7 +120,8 @@ def manual_ctft(signal, time_array, frequencies):
 
 
 # main
-time_array, sample_rate, audio_data = prepare_audio("../skyfall_clip.wav", 2, 13)
+sample_rate, audio_data, time_array = prepare_audio("../skyfall_clip.wav", 2, 13)
 frequencies = np.linspace(-5000, 5000, 1000)
 
-modulated_signal, spectrum = analyze_energy_distribution(audio_data, time_array, sample_rate, 500000)   # 500 GHz given as high freq
+modulated_signal, spectrum = analyze_energy_distribution(audio_data, time_array, sample_rate, 500000)   # 500 KHz given as high freq
+modulated_signal, spectrum = analyze_energy_distribution(audio_data, time_array, sample_rate, 500000000)   # 500 MHz given as high freq
