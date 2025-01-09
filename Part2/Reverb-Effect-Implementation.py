@@ -79,6 +79,8 @@ def apply_time_reverb(signal, kernel):
     if max_val > 1:
         processed_signal /= max_val
     
+    wavfile.write("time-reverb.wav", sample_rate, (processed_signal * 32767).astype(np.int16))
+    print("Segment saved to time-reverb.wav")
     return processed_signal
 
 
@@ -101,6 +103,9 @@ def apply_freq_reverb(signal, kernel):
     if max_val > 1:
         processed_signal /= max_val
     
+    wavfile.write("freq-reverb.wav", sample_rate, (processed_signal * 32767).astype(np.int16))
+    print("Segment saved to freq-reverb.wav")
+
     return processed_signal
 
 
@@ -108,12 +113,13 @@ duration = 2.0
 decay_rate = 0.8
 sinc_freq = 500
 
-# Create the reverb kernel
-kernel = create_reverb(duration, sample_rate, decay_rate, sinc_freq)
+
 filepath = "../skyfall_clip.wav"
 duration = 2
 start_time = 13
 signal, time_array, sample_rate = prepare_audio(filepath, duration, start_time)
+
+kernel = create_reverb(duration, sample_rate, decay_rate, sinc_freq)
 appl_freq_reverb = apply_freq_reverb(signal, kernel)
 appl_time_reverb = apply_time_reverb(signal, kernel)
 
