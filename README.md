@@ -1,1 +1,5 @@
-### TODO: Add a gui and sliding window animation (useful for large files)
+# Audio Signal Processing Lab Experiment
+ Submission for Lab Experiment for EC 274 (Analog Communication System Lab).
+
+ 
+ 
