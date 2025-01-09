@@ -27,18 +27,6 @@ def prepare_audio(filename, duration, start_time):
 
 
 def create_reverb(duration, sample_rate, decay_rate=0.5, sinc_freq=500):
-    """
-    Generate a reverb impulse response kernel and provide audio playback.
-
-    Parameters:
-        duration (float): Duration of the reverb kernel in seconds.
-        sample_rate (int): Sampling rate in Hz.
-        decay_rate (float): Exponential decay rate (higher values decay faster).
-        sinc_freq (float): Frequency of the sinc function in Hz.
-
-    Returns:
-        reverb_kernel (numpy.ndarray): The generated reverb impulse response kernel.
-    """
     # 1. Create a time array for the kernel
     num_samples = int(duration * sample_rate)
     time_array = np.linspace(0, duration, num_samples, endpoint=False)

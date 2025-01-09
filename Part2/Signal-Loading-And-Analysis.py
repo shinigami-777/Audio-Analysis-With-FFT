@@ -3,19 +3,6 @@ from scipy.io import wavfile
 from matplotlib import pyplot as plt
 
 def prepare_audio(filename, duration, start_time):
-    """
-    Load and preprocess an audio file.
-
-    Parameters:
-        filename (str): Path to the WAV file.
-        duration (float): Duration of the audio segment to extract (in seconds).
-        start_time (float): Start time of the segment to extract (in seconds).
-
-    Returns:
-        processed_signal (numpy.ndarray): The normalized audio signal.
-        time_array (numpy.ndarray): Time array corresponding to the extracted signal.
-        sample_rate (int): Sampling rate of the audio file.
-    """
     # 1. Load audio file
     sample_rate, signal = wavfile.read(filename)
     
@@ -46,17 +33,7 @@ def prepare_audio(filename, duration, start_time):
 
 
 def analyze_spectrum(signal, sample_rate):
-    """
-    Compute and display the frequency spectrum of a signal.
 
-    Parameters:
-        signal (numpy.ndarray): The input audio signal (1D array).
-        sample_rate (int): The sampling rate of the audio signal.
-
-    Returns:
-        frequencies (numpy.ndarray): The array of frequencies in Hz.
-        magnitude_spectrum (numpy.ndarray): The magnitude spectrum in dB.
-    """
     # 1. Compute the FFT
     fft_result = np.fft.fft(signal)
     fft_magnitude = np.abs(fft_result)  # Magnitude of the FFT

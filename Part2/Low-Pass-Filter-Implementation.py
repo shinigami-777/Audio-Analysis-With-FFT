@@ -26,18 +26,6 @@ def prepare_audio(filename, duration, start_time):
 
 
 def design_lpf(cutoff_freq, sample_rate, kernel_length, window_type='hamming'):
-    """
-    Design a low-pass filter kernel using the sinc function and a window function.
-
-    Parameters:
-        cutoff_freq (float): Cutoff frequency of the low-pass filter in Hz.
-        sample_rate (float): Sampling rate of the signal in Hz.
-        kernel_length (int): Length of the filter kernel (must be odd).
-        window_type (str): Type of window function to apply ('hamming', 'hanning', 'blackman').
-
-    Returns:
-        filter_kernel (numpy.ndarray): The designed low-pass filter kernel.
-    """
     if kernel_length % 2 == 0:
         raise ValueError("Kernel length must be odd to center the filter at zero.")
     
@@ -69,16 +57,6 @@ def design_lpf(cutoff_freq, sample_rate, kernel_length, window_type='hamming'):
 
 
 def time_domain_filter(signal, kernel):
-    """
-    Apply a filter to a signal in the time domain using convolution.
-
-    Parameters:
-        signal (numpy.ndarray): Input signal.
-        kernel (numpy.ndarray): Filter kernel (impulse response).
-
-    Returns:
-        filtered_signal (numpy.ndarray): Filtered signal.
-    """
     # 1. Perform convolution
     filtered_signal = np.convolve(signal, kernel, mode='same')  # Use 'same' to match the output size to the input size
     
@@ -90,17 +68,6 @@ def time_domain_filter(signal, kernel):
     return filtered_signal
 
 def frequency_domain_filter(signal, cutoff, sample_rate):
-    """
-    Apply a low-pass filter to a signal in the frequency domain.
-
-    Parameters:
-        signal (numpy.ndarray): Input signal.
-        cutoff (float): Cutoff frequency of the filter in Hz.
-        sample_rate (float): Sampling rate of the signal in Hz.
-
-    Returns:
-        filtered_signal (numpy.ndarray): Filtered signal.
-    """
     # 1. Create frequency mask
     n = len(signal)
     freqs = np.fft.fftfreq(n, d=1/sample_rate)  # Frequency bins

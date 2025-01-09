@@ -5,6 +5,40 @@ import matplotlib.pyplot as plt
 
 def prepare_audio(filename, duration, start_time):
     # 1. Load audio file
+    sample_rate, signal = wavfile.read(filename)
+    
+    # 2. Check if stereo -> convert to mono if needed
+    if len(signal.shape) == 2:  # Stereo audio
+        print("Signal is converted to mono")
+        signal = signal.mean(axis=1)  # Convert to mono by averaging channels
+    else:
+        print("Signal was mono already")
+    
+    # 3. Extract segment of specified duration
+    start_sample = int(start_time * sample_rate)
+    end_sample = int((start_time + duration) * sample_rate)
+    segment = signal[start_sample:end_sample]
+    
+    # 4. Normalize signal to range [-1, 1]
+    signal_max = np.max(np.abs(segment))
+    if signal_max != 0:  # Avoid division by zero
+        processed_signal = segment / signal_max
+    else:
+        processed_signal = segment
+    print("Signal is Normalized")
+    
+    # 5. Create time array
+    time_array = np.linspace(0, len(processed_signal) / sample_rate, len(processed_signal), endpoint=False)
+    
+    output_path = "segment.wav"
+    wavfile.write(output_path, sample_rate, (processed_signal * 32767).astype(np.int16))
+    print(f"Segment saved to {output_path}")
+
+    return sample_rate, processed_signal, time_array
+
+'''
+def prepare_audio(filename, duration, start_time):
+    # 1. Load audio file
     sample_rate, audio_data = wavfile.read(filename)
     # 2. Check if stereo -> convert to mono if needed
     if len(audio_data.shape) == 2:  # Check if the audio is stereo
@@ -39,9 +73,10 @@ def prepare_audio(filename, duration, start_time):
     # Extracting time array
     sample_rate, audio_data = wavfile.read("segment.wav")
     duration = len(audio_data) / sample_rate
-    print(duration)
+    #print(duration)
     time_array = np.linspace(0, duration, num=len(audio_data))
     return time_array, sample_rate, audio_data
+'''
 
 def manual_ctft(signal, time_array, frequencies):
     # Step 1: Set up integration parameters
@@ -113,5 +148,5 @@ def analyze_time_reversal(signal, time_array, sample_rate):
     plt.show()
     return time_method_results, freq_method_results
 
-time_array, sample_rate, audio_data = prepare_audio("../skyfall_clip.wav", 2, 13)
+sample_rate, audio_data, time_array = prepare_audio("../skyfall_clip.wav", 2, 13)
 tmr, ss = analyze_time_reversal(audio_data, time_array, sample_rate)
